@@ -1,0 +1,3 @@
+@echo off
+echo Starting Ark JoinSim...
+python joinsim.py
