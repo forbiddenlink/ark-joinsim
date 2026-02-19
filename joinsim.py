@@ -17,6 +17,7 @@ import time
 import tkinter as tk
 from tkinter import ttk, messagebox
 from pathlib import Path
+import winsound  # Windows sound
 
 try:
     import pyautogui
@@ -24,6 +25,20 @@ try:
 except ImportError:
     print("Missing dependencies. Run: pip install pyautogui keyboard")
     exit(1)
+
+def play_sound(sound_type="click"):
+    """Play a sound (Windows only)."""
+    try:
+        if sound_type == "start":
+            winsound.Beep(800, 200)
+        elif sound_type == "stop":
+            winsound.Beep(400, 200)
+        elif sound_type == "limit":
+            winsound.Beep(1000, 100)
+            winsound.Beep(1200, 100)
+            winsound.Beep(1000, 100)
+    except:
+        pass  # Ignore if winsound not available (non-Windows)
 
 # Disable PyAutoGUI fail-safe (move mouse to corner to stop)
 pyautogui.FAILSAFE = True
@@ -44,6 +59,9 @@ DEFAULT_CONFIG = {
     "random_pause_max": 8.0,
     "resolution": None,
     "click_count": 0,  # Track total clicks
+    "mouse_button": "left",  # left or right
+    "click_limit": 0,  # 0 = unlimited
+    "sound_enabled": True,  # Play sound on events
 }
 
 
@@ -56,8 +74,8 @@ class JoinSim:
         
         # GUI
         self.root = tk.Tk()
-        self.root.title("Ark JoinSim v2")
-        self.root.geometry("420x420")
+        self.root.title("Ark JoinSim v3")
+        self.root.geometry("420x500")
         self.root.resizable(False, False)
         
         # Try to set dark theme
@@ -135,6 +153,27 @@ class JoinSim:
         jitter_entry = ttk.Entry(jitter_frame, textvariable=self.jitter_var, width=8)
         jitter_entry.pack(side=tk.LEFT, padx=5)
         jitter_entry.bind("<FocusOut>", self.update_jitter)
+        
+        # Click limit
+        limit_frame = ttk.Frame(self.root)
+        limit_frame.pack(pady=5)
+        
+        ttk.Label(limit_frame, text="Click limit (0=unlimited):").pack(side=tk.LEFT, padx=5)
+        self.limit_var = tk.StringVar(value=str(self.config.get("click_limit", 0)))
+        limit_entry = ttk.Entry(limit_frame, textvariable=self.limit_var, width=8)
+        limit_entry.pack(side=tk.LEFT, padx=5)
+        limit_entry.bind("<FocusOut>", self.update_limit)
+        
+        # Mouse button toggle
+        mouse_frame = ttk.Frame(self.root)
+        mouse_frame.pack(pady=5)
+        
+        ttk.Label(mouse_frame, text="Mouse button:").pack(side=tk.LEFT, padx=5)
+        self.mouse_btn_var = tk.StringVar(value=self.config.get("mouse_button", "left"))
+        mouse_left = ttk.Radiobutton(mouse_frame, text="Left", variable=self.mouse_btn_var, value="left", command=self.update_mouse_button)
+        mouse_left.pack(side=tk.LEFT, padx=5)
+        mouse_right = ttk.Radiobutton(mouse_frame, text="Right", variable=self.mouse_btn_var, value="right", command=self.update_mouse_button)
+        mouse_right.pack(side=tk.LEFT, padx=5)
         
         # Buttons
         btn_frame = ttk.Frame(self.root)
@@ -217,6 +256,20 @@ class JoinSim:
         except ValueError:
             self.jitter_var.set(str(self.config["jitter"]))
     
+    def update_limit(self, event=None):
+        try:
+            val = int(self.limit_var.get())
+            if val < 0:
+                val = 0
+            self.config["click_limit"] = val
+            self.save_config()
+        except ValueError:
+            self.limit_var.set(str(self.config.get("click_limit", 0)))
+    
+    def update_mouse_button(self):
+        self.config["mouse_button"] = self.mouse_btn_var.get()
+        self.save_config()
+    
     def toggle(self):
         if self.running:
             self.stop()
@@ -232,19 +285,36 @@ class JoinSim:
         self.status_var.set("🟢 Running...")
         self.start_btn.config(text="⏸️ Pause (F6)")
         
+        if self.config.get("sound_enabled", True):
+            play_sound("start")
+        
         self.click_thread = threading.Thread(target=self.click_loop, daemon=True)
         self.click_thread.start()
     
-    def stop(self):
+    def stop(self, reason="paused"):
         self.running = False
-        self.status_var.set("⏸️ Paused")
+        if reason == "limit":
+            self.status_var.set("🏁 Click limit reached!")
+            if self.config.get("sound_enabled", True):
+                play_sound("limit")
+        else:
+            self.status_var.set("⏸️ Paused")
+            if self.config.get("sound_enabled", True):
+                play_sound("stop")
         self.start_btn.config(text="▶️ Start (F6)")
     
     def click_loop(self):
         """Human-like clicking loop with anti-detection features."""
         click_count = 0
+        click_limit = self.config.get("click_limit", 0)
+        mouse_button = self.config.get("mouse_button", "left")
         
         while self.running:
+            # Check click limit
+            if click_limit > 0 and click_count >= click_limit:
+                self.root.after(0, lambda: self.stop("limit"))
+                break
+            
             x = self.config["click_x"]
             y = self.config["click_y"]
             
@@ -262,19 +332,20 @@ class JoinSim:
                 time.sleep(random.uniform(0.02, 0.08))
                 
                 # Press and hold (anti-cheat looks for instant release)
-                pyautogui.mouseDown()
+                pyautogui.mouseDown(button=mouse_button)
                 hold_time = random.uniform(
                     self.config.get("click_duration_min", 0.05),
                     self.config.get("click_duration_max", 0.15)
                 )
                 time.sleep(hold_time)
-                pyautogui.mouseUp()
+                pyautogui.mouseUp(button=mouse_button)
                 
                 click_count += 1
                 self.config["click_count"] = click_count
                 
                 # Update status with click count
-                self.root.after(0, lambda c=click_count: self.status_var.set(f"🟢 Running... ({c} clicks)"))
+                limit_str = f"/{click_limit}" if click_limit > 0 else ""
+                self.root.after(0, lambda c=click_count, l=limit_str: self.status_var.set(f"🟢 Running... ({c}{l} clicks)"))
                 
             except Exception as e:
                 print(f"Click error: {e}")
