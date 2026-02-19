@@ -23,5 +23,9 @@ requests>=2.28.0
 
 # Windows Performance (recommended)
 pydirectinput>=1.0.4
-dxcam>=0.0.5
 pywin32>=306
+
+# Screen capture - BetterCam recommended (better Windows 11 support)
+# Install ONE of these:
+bettercam>=1.0.0
+# dxcam>=0.0.5  # Alternative, but has Windows 11 issues

@@ -53,14 +53,30 @@ try:
 except ImportError:
     raise ImportError("MSS is required. Run: pip install mss")
 
-# Optional DXcam for Windows (best performance)
+# Optional DXcam/BetterCam for Windows (best performance)
+# BetterCam is recommended over DXcam for Windows 11 compatibility
 HAS_DXCAM = False
+HAS_BETTERCAM = False
+DXCAM_MODULE = None
+
 if IS_WINDOWS:
+    # Try BetterCam first (more stable on Windows 11)
     try:
-        import dxcam
-        HAS_DXCAM = True
+        import bettercam
+        DXCAM_MODULE = bettercam
+        HAS_BETTERCAM = True
+        HAS_DXCAM = True  # Treat as dxcam-compatible
     except ImportError:
         pass
+
+    # Fall back to DXcam
+    if not HAS_BETTERCAM:
+        try:
+            import dxcam
+            DXCAM_MODULE = dxcam
+            HAS_DXCAM = True
+        except ImportError:
+            pass
 
 # Optional pygetwindow for cross-platform window detection
 try:
@@ -80,9 +96,13 @@ if IS_WINDOWS:
         pass
 
 
-# Configure logging
-logging.basicConfig(level=logging.DEBUG)
+# Configure logging (INFO level by default, DEBUG is too noisy)
 logger = logging.getLogger(__name__)
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    handler.setFormatter(logging.Formatter('%(name)s - %(levelname)s - %(message)s'))
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
 
 
 # Constants
@@ -311,13 +331,14 @@ class ScreenCapture:
         self._init_backend()
 
     def _init_backend(self) -> None:
-        """Initialize the capture backend (DXcam or MSS)."""
-        if self.use_dxcam:
+        """Initialize the capture backend (BetterCam/DXcam or MSS)."""
+        if self.use_dxcam and DXCAM_MODULE is not None:
             try:
-                self._dxcam_camera = dxcam.create()
-                logger.info("Using DXcam for screen capture")
+                self._dxcam_camera = DXCAM_MODULE.create()
+                backend_name = "BetterCam" if HAS_BETTERCAM else "DXcam"
+                logger.info(f"Using {backend_name} for screen capture")
             except Exception as e:
-                logger.warning(f"DXcam initialization failed: {e}, falling back to MSS")
+                logger.warning(f"DirectX capture initialization failed: {e}, falling back to MSS")
                 self.use_dxcam = False
 
         if not self.use_dxcam:
@@ -487,6 +508,15 @@ class ScreenCapture:
                 return float('inf')
             return time.time() - self._frame_time
 
+    def is_running(self) -> bool:
+        """Thread-safe check if capture thread is running.
+
+        Returns:
+            True if capture thread is running.
+        """
+        with self._lock:
+            return self._running
+
     def cleanup(self) -> None:
         """Clean up resources."""
         self.stop_threaded_capture()
@@ -627,7 +657,7 @@ class TemplateDetector:
             return None
 
         # Capture screen
-        if self.capture._running:
+        if self.capture.is_running():
             frame = self.capture.get_latest_frame()
         else:
             frame = self.capture.capture(region)
@@ -637,7 +667,7 @@ class TemplateDetector:
             return None
 
         # If we captured full screen but have a region, crop it
-        if region and not self.capture._running:
+        if region and not self.capture.is_running():
             # Already captured with region
             pass
 
@@ -926,7 +956,7 @@ class TemplateDetector:
         if template is None:
             return []
 
-        if self.capture._running:
+        if self.capture.is_running():
             frame = self.capture.get_latest_frame()
         else:
             frame = self.capture.capture(region)

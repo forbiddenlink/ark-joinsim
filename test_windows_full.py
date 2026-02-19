@@ -31,15 +31,15 @@ results = {"passed": 0, "failed": 0, "warnings": 0}
 
 def test_pass(name, msg=""):
     results["passed"] += 1
-    print(f"  ✓ {name}" + (f" - {msg}" if msg else ""))
+    print(f"  [OK] {name}" + (f" - {msg}" if msg else ""))
 
 def test_fail(name, msg=""):
     results["failed"] += 1
-    print(f"  ✗ {name}" + (f" - {msg}" if msg else ""))
+    print(f"  [FAIL] {name}" + (f" - {msg}" if msg else ""))
 
 def test_warn(name, msg=""):
     results["warnings"] += 1
-    print(f"  ⚠ {name}" + (f" - {msg}" if msg else ""))
+    print(f"  [WARN] {name}" + (f" - {msg}" if msg else ""))
 
 print("=" * 50)
 print("ARK JOINSIM - WINDOWS FULL TEST")
@@ -260,10 +260,10 @@ print(f"  Failed:   {results['failed']}")
 print(f"  Warnings: {results['warnings']}")
 
 if results['failed'] == 0:
-    print("\n✓ All critical tests passed!")
+    print("\n[OK] All critical tests passed!")
     print("  You can run: python joinsim.py")
 else:
-    print(f"\n✗ {results['failed']} tests failed - see errors above")
+    print(f"\n[FAIL] {results['failed']} tests failed - see errors above")
     print("  Try: pip install -r requirements-windows.txt")
 
 if results['warnings'] > 0:
@@ -277,4 +277,7 @@ if results['warnings'] > 0:
         print("    pip install pywin32")
 
 print()
-input("Press Enter to exit...")
+# Only wait for input if running interactively (not in CI)
+import os
+if os.environ.get('CI') != 'true' and sys.stdin.isatty():
+    input("Press Enter to exit...")

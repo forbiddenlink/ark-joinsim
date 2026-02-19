@@ -1,8 +1,9 @@
 # Build artifacts
 build/
 dist/
-*.spec
 *.exe
+# Allow joinsim.spec (project config), ignore other generated specs
+!joinsim.spec
 
 # Config (user-specific)
 joinsim_config.json

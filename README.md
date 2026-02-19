@@ -95,7 +95,7 @@ The wizard will guide you to:
 
 This only needs to be done once per resolution.
 
-### 3. Use It
+### 4. Use It
 
 1. **Launch Ark Ascended** and navigate to the server list
 2. **Find your full server**

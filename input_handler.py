@@ -18,12 +18,16 @@ Platform Support:
 
 from __future__ import annotations
 
+import logging
 import math
 import random
 import threading
 import time
 from dataclasses import dataclass, field
 from typing import Callable, Optional, Tuple
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 # Thread lock for input operations
 _input_lock = threading.Lock()
@@ -337,9 +341,9 @@ class HumanInput:
                         _input_module.moveTo(point[0], point[1])
                     else:
                         _input_module.moveTo(point[0], point[1], _pause=False)
-                except Exception:
-                    # Silently continue on minor errors
-                    pass
+                except Exception as e:
+                    # Log but continue on minor errors
+                    logger.debug(f"Mouse move error (non-fatal): {e}")
 
                 # Variable delay between steps (more human-like)
                 actual_delay = step_delay * random.uniform(0.8, 1.2)
@@ -375,8 +379,8 @@ class HumanInput:
                     _input_module.moveTo(jx, jy)
                 else:
                     _input_module.moveTo(jx, jy, _pause=False)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"Micro-jitter error (non-fatal): {e}")
 
             sleep_time = min(interval, duration - elapsed)
             time.sleep(sleep_time)
@@ -441,8 +445,7 @@ class HumanInput:
                 else:
                     _input_module.mouseDown(button=button, _pause=False)
             except Exception as e:
-                # Log but continue
-                pass
+                logger.warning(f"Mouse down failed: {e}")
 
             # Hold with micro-jitter
             self._perform_micro_jitter(target_x, target_y, hold_duration)
@@ -453,8 +456,8 @@ class HumanInput:
                     _input_module.mouseUp(button=button)
                 else:
                     _input_module.mouseUp(button=button, _pause=False)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.warning(f"Mouse up failed: {e}")
 
             # Small post-click delay
             post_delay = self.gaussian_delay(mean=0.02, stddev=0.01, min_val=0.005)
@@ -484,9 +487,8 @@ class HumanInput:
                     _input_module.keyDown(key, _pause=False)
                     time.sleep(hold_duration)
                     _input_module.keyUp(key, _pause=False)
-            except Exception:
-                # Some keys might not be supported
-                pass
+            except Exception as e:
+                logger.warning(f"Key press failed for '{key}': {e}")
 
             # Post-key delay
             time.sleep(self.gaussian_delay(mean=0.03, stddev=0.01, min_val=0.01))

@@ -24,19 +24,19 @@ results = {
 def test_pass(name: str, msg: str = ""):
     """Record a passing test."""
     results["passed"].append(name)
-    print(f"  ✓ {name}" + (f" - {msg}" if msg else ""))
+    print(f"  [OK] {name}" + (f" - {msg}" if msg else ""))
 
 
 def test_fail(name: str, msg: str = ""):
     """Record a failing test."""
     results["failed"].append(name)
-    print(f"  ✗ {name}" + (f" - {msg}" if msg else ""))
+    print(f"  [FAIL] {name}" + (f" - {msg}" if msg else ""))
 
 
 def test_skip(name: str, msg: str = ""):
     """Record a skipped test."""
     results["skipped"].append(name)
-    print(f"  ○ {name} (skipped)" + (f" - {msg}" if msg else ""))
+    print(f"  [SKIP] {name}" + (f" - {msg}" if msg else ""))
 
 
 def test_vision_module():
