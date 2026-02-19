@@ -1,65 +1,83 @@
-# Ark JoinSim v3 — Auto-Joiner for Ark: Survival Ascended
+# Ark JoinSim v4 — Smart Auto-Joiner for Ark: Survival Ascended
 
-A smart auto-clicker / auto-joiner for getting into full Ark Ascended servers.
+A smart auto-joiner that **detects join failures and automatically retries**. No more getting stuck on "Server Full" popups.
 
-**Built for:** Windows laptop (optimized for different screen resolutions)
+**Built for:** Windows (with Mac/Linux support)
+
+## What's New in v4
+
+- **Smart Detection** — Detects "Server Full" popup, loading screens, and when you get kicked back
+- **Auto-Retry** — Automatically dismisses popups and retries joining
+- **Auto-Find Window** — No more manual "Set Position" — finds ARK automatically
+- **Works at Any Resolution** — Multi-scale template matching adapts to your screen
+- **Modern Dark UI** — Clean interface with live detection status and activity log
+- **Discord Notifications** — Get pinged when you successfully join
+- **Better Anti-Detection** — Bezier curve mouse movement, Gaussian timing distribution
 
 ## Features
 
-### Core
-- **Auto-clicks Join button** until a server slot opens
-- **Human-like clicking** — not detectable as a simple macro
-- **Click position learning** — click once to set the Join button location
-- **Hotkey controls** — F6 to toggle, F7 to quit
-- **Simple GUI** — no command line needed
+### Smart Join Detection
+- **Detects "Server Full" popup** and dismisses it automatically
+- **Detects loading screen** to know join is in progress
+- **Detects kick-back to server list** and retries
+- **Detects successful join** and stops (spawn screen / HUD)
+- **15-second timeout** for stuck joins
 
-### Anti-Detection (v2)
-- **Mouse down/up delay** — holds click for realistic duration (50-150ms)
-- **Position jitter** — clicks slightly different spot each time (±5px)
-- **Timing variance** — random delays between clicks
-- **Random pauses** — occasionally waits 3-8 seconds (looks human)
-- **Smooth mouse movement** — moves to position with slight curve
+### Modern UI
+- **Live detection status** — See what the bot can see
+- **Activity log** — Scrolling history of all actions
+- **Session stats** — Retry count, time elapsed, clicks
+- **Settings panel** — Configure timeout, sounds, Discord webhook
+
+### Anti-Detection (Improved)
+- **Bezier curve mouse movement** — Natural curved paths, not linear
+- **Gaussian timing distribution** — More human-like than uniform random
+- **Micro-jitter during click hold** — Humans don't hold perfectly still
+- **Position jitter** — Clicks slightly different spot each time (±5px)
+- **Realistic click duration** — 50-150ms hold time
 
 ### Quality of Life
-- **Click counter** — shows how many clicks this session
-- **Click limit** — optionally stop after X clicks (0 = unlimited)
-- **Left/Right mouse button** — toggle between mouse buttons
-- **Sound notifications** — beeps on start/stop/limit reached
-- **Auto-saves settings** — remembers position and preferences
-- **Works on any resolution** — laptop or desktop
+- **Discord notifications** — Get pinged on success/failure
+- **Sound notifications** — Different sounds for different events
+- **Auto-saves settings** — Remembers your preferences
+- **Hotkey controls** — F6 to toggle, F7 to quit
 
 ## Quick Start
 
-### Option 1: Run from Python
-```bash
-# Install dependencies (one time)
-pip install pyautogui keyboard pynput
+### 1. Install Dependencies
 
-# Run
+```bash
+pip install -r requirements.txt
+```
+
+**On Windows (recommended):** Also install optional packages for better performance:
+```bash
+pip install pydirectinput dxcam pywin32
+```
+
+### 2. First-Time Setup
+
+Run the app — it will launch a setup wizard to capture template images:
+
+```bash
 python joinsim.py
 ```
 
-### Option 2: Use the batch files (Windows)
-```
-1. Double-click install.bat (one time)
-2. Double-click run.bat
-```
+The wizard will guide you to:
+1. Capture the **Join button**
+2. Capture the **"Server Full" popup**
+3. Capture the **server list** background
+4. (Optional) Capture the **loading screen**
 
-### Option 3: Build standalone exe
-```bash
-# Creates dist/JoinSim.exe
-build_exe.bat
-```
+This only needs to be done once per resolution.
 
-## How to Use
+### 3. Use It
 
 1. **Launch Ark Ascended** and navigate to the server list
-2. **Find your full server** (shows 70/70 or whatever the max is)
-3. **Run JoinSim**
-4. **Click "Set Position"** → then click Ark's Join button
-5. **Click "Start"** (or press F6)
-6. **Wait** — JoinSim will keep clicking until you get in
-7. **Press F6 to pause** or **F7 to quit**
+2. **Find your full server**
+3. **Run JoinSim** and click **Start** (or press F6)
+4. **Wait** — JoinSim will detect failures and keep retrying
+5. **Get notified** when you successfully join!
 
 ## Configuration
 
@@ -67,56 +85,86 @@ Settings are saved to `joinsim_config.json`:
 
 | Setting | Default | Description |
 |---------|---------|-------------|
-| `interval` | 2.5s | Base time between clicks |
-| `jitter` | 0.8s | Random variance (±) added to interval |
-| `position_jitter` | 5px | Random variance in click position |
-| `click_duration_min` | 0.05s | Minimum mouse-down hold time |
-| `click_duration_max` | 0.15s | Maximum mouse-down hold time |
-| `random_pause_chance` | 10% | Chance of a longer random pause |
-| `random_pause_min` | 3.0s | Minimum random pause |
-| `random_pause_max` | 8.0s | Maximum random pause |
-| `mouse_button` | "left" | Which mouse button to click |
-| `click_limit` | 0 | Stop after X clicks (0 = unlimited) |
+| `timeout_seconds` | 15 | How long to wait before assuming join failed |
+| `detection_threshold` | 0.8 | Template matching confidence (0.0-1.0) |
 | `sound_enabled` | true | Play sounds on events |
+| `discord_webhook` | null | Discord webhook URL for notifications |
 
-## Why This Works Better Than Simple Auto-Clickers
+## File Structure
 
-1. **Realistic click duration** — Most auto-clickers click instantly (0ms hold). Humans hold the mouse button for 50-150ms. Anti-cheat can detect instant releases.
+```
+ark-joinsim/
+├── joinsim.py          # Main application
+├── vision.py           # Screen capture + template matching
+├── input_handler.py    # Human-like mouse/keyboard
+├── state_machine.py    # Join state tracking
+├── notifications.py    # Discord + sounds
+├── setup_wizard.py     # First-time template capture
+├── templates/          # Your captured template images
+├── requirements.txt
+└── joinsim_config.json # Your settings
+```
 
-2. **Position variance** — Humans don't click the exact same pixel every time. We add ±5px jitter.
+## How It Works
 
-3. **Timing variance** — Humans don't click at perfectly regular intervals. We add randomness.
+### State Machine
 
-4. **Random pauses** — Real humans occasionally pause to check their phone, take a sip, etc. We simulate this.
+```
+IDLE → SEARCHING → CLICKING → WAITING → SUCCESS!
+                      ↓           ↓
+                   RETRY ← FAILED (server full / timeout)
+```
 
-5. **Smooth mouse movement** — We move the cursor to the button with a slight curve, not teleport.
+1. **SEARCHING** — Looking for ARK window and Join button
+2. **CLICKING** — Found target, performing human-like click
+3. **WAITING** — Clicked, monitoring for result (max 15 seconds)
+4. **FAILED** — Detected popup or timeout, dismisses and retries
+5. **SUCCESS** — Detected loading/spawn screen, stops bot
+
+### Detection Methods
+
+Uses OpenCV template matching with multiple fallback strategies:
+1. **Exact match** — Fastest, works when resolution matches
+2. **Multi-scale match** — Handles different resolutions
+3. **HSV color match** — Ignores Discord/Steam overlays
+4. **Feature matching** — Most robust for partial visibility
 
 ## Troubleshooting
 
-**Click is in the wrong spot:**
-- Re-run "Set Position"
-- Make sure Ark is in the same windowed/fullscreen mode
+**"Templates not found" on startup:**
+- Run the setup wizard again: `python setup_wizard.py`
+- Make sure ARK is visible when capturing
 
-**Not clicking:**
-- Make sure Ark window is in focus
-- Check that JoinSim shows "Running" status
+**Detection not working:**
+- Lower the `detection_threshold` in settings (try 0.7)
+- Recapture templates with overlays disabled
+- Make sure ARK window is not minimized
 
-**Still can't get in after 100+ clicks:**
-- Server might be legitimately full with no one leaving
-- Try a different time (early morning is usually less busy)
+**Bot keeps clicking but nothing happens:**
+- Check that templates match your current ARK UI
+- Try recapturing templates
 
-**Anti-cheat warning:**
-- This tool is designed to look human-like, but use at your own risk on official servers
-- Unofficial/private servers generally don't care about auto-clickers
-
-## Laptop vs Desktop
-
-JoinSim saves your screen resolution. If you switch between laptop and desktop:
-- Just re-run "Set Position" on each device
-- Settings are per-device based on resolution
+**Discord notifications not working:**
+- Verify webhook URL is correct (Settings → Discord Webhook)
+- Check that the webhook has permission to post
 
 ## Requirements
 
-- Windows 10/11
-- Python 3.8+ (or use the standalone .exe)
-- pyautogui, keyboard, pynput
+- Python 3.8+
+- Windows 10/11 (recommended) or Mac/Linux
+- ~100MB disk space for dependencies
+
+### Core Dependencies
+- customtkinter (modern UI)
+- opencv-python (template matching)
+- mss (screen capture)
+- pyautogui (input simulation)
+
+### Optional (Windows)
+- pydirectinput (better DirectX input)
+- dxcam (faster screen capture, 240+ FPS)
+- pywin32 (better window detection)
+
+## Disclaimer
+
+This tool is designed for quality-of-life on unofficial/private servers. Use at your own risk on official servers. The authors are not responsible for any bans or penalties.
