@@ -34,9 +34,16 @@ CONFIG_FILE = Path(__file__).parent / "joinsim_config.json"
 DEFAULT_CONFIG = {
     "click_x": None,
     "click_y": None,
-    "interval": 2.0,
-    "jitter": 0.5,
+    "interval": 2.5,  # Slightly longer default
+    "jitter": 0.8,    # More variance
+    "position_jitter": 5,  # Pixels to vary click position
+    "click_duration_min": 0.05,  # Min time to hold mouse down
+    "click_duration_max": 0.15,  # Max time to hold mouse down
+    "random_pause_chance": 0.1,  # 10% chance of random longer pause
+    "random_pause_min": 3.0,
+    "random_pause_max": 8.0,
     "resolution": None,
+    "click_count": 0,  # Track total clicks
 }
 
 
@@ -49,8 +56,8 @@ class JoinSim:
         
         # GUI
         self.root = tk.Tk()
-        self.root.title("Ark JoinSim")
-        self.root.geometry("400x350")
+        self.root.title("Ark JoinSim v2")
+        self.root.geometry("420x420")
         self.root.resizable(False, False)
         
         # Try to set dark theme
@@ -142,13 +149,19 @@ class JoinSim:
         # Instructions
         instructions = ttk.Label(
             self.root,
-            text="1. Click 'Set Position' then click Ark's Join button\n"
-                 "2. Press Start or F6 to begin auto-clicking\n"
-                 "3. F6 to pause, F7 to quit",
+            text="1. Open Ark → Server List → Find your server\n"
+                 "2. Click 'Set Position' then click the Join button\n"
+                 "3. Press Start (F6) — it will auto-click until a slot opens\n"
+                 "4. F6 to pause, F7 to quit\n\n"
+                 "💡 Uses human-like clicking with random delays",
             font=("Helvetica", 9),
             justify=tk.CENTER
         )
         instructions.pack(pady=10)
+        
+        # Click counter
+        self.counter_label = ttk.Label(self.root, text="Total clicks this session: 0", font=("Helvetica", 9))
+        self.counter_label.pack(pady=5)
     
     def get_pos_text(self):
         x, y = self.config.get("click_x"), self.config.get("click_y")
@@ -228,23 +241,57 @@ class JoinSim:
         self.start_btn.config(text="▶️ Start (F6)")
     
     def click_loop(self):
+        """Human-like clicking loop with anti-detection features."""
+        click_count = 0
+        
         while self.running:
             x = self.config["click_x"]
             y = self.config["click_y"]
             
-            # Add jitter
-            jitter = self.config.get("jitter", 0.5)
-            x += random.randint(-3, 3)
-            y += random.randint(-3, 3)
+            # Position jitter (more realistic than exact same spot)
+            pos_jitter = self.config.get("position_jitter", 5)
+            x += random.randint(-pos_jitter, pos_jitter)
+            y += random.randint(-pos_jitter, pos_jitter)
             
-            # Click
+            # Human-like click: move, pause, press, hold, release
             try:
-                pyautogui.click(x, y)
+                # Move to position with slight curve (more human)
+                pyautogui.moveTo(x, y, duration=random.uniform(0.1, 0.25))
+                
+                # Small pause before clicking (humans don't click instantly)
+                time.sleep(random.uniform(0.02, 0.08))
+                
+                # Press and hold (anti-cheat looks for instant release)
+                pyautogui.mouseDown()
+                hold_time = random.uniform(
+                    self.config.get("click_duration_min", 0.05),
+                    self.config.get("click_duration_max", 0.15)
+                )
+                time.sleep(hold_time)
+                pyautogui.mouseUp()
+                
+                click_count += 1
+                self.config["click_count"] = click_count
+                
+                # Update status with click count
+                self.root.after(0, lambda c=click_count: self.status_var.set(f"🟢 Running... ({c} clicks)"))
+                
             except Exception as e:
                 print(f"Click error: {e}")
             
-            # Wait with jitter
+            # Random longer pause occasionally (looks more human)
+            if random.random() < self.config.get("random_pause_chance", 0.1):
+                pause = random.uniform(
+                    self.config.get("random_pause_min", 3.0),
+                    self.config.get("random_pause_max", 8.0)
+                )
+                self.root.after(0, lambda: self.status_var.set(f"🟡 Pausing {pause:.1f}s..."))
+                time.sleep(pause)
+                self.root.after(0, lambda c=click_count: self.status_var.set(f"🟢 Running... ({c} clicks)"))
+            
+            # Normal wait with jitter
             interval = self.config["interval"]
+            jitter = self.config.get("jitter", 0.8)
             wait = interval + random.uniform(-jitter, jitter)
             wait = max(0.5, wait)
             time.sleep(wait)
