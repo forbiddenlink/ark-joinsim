@@ -587,9 +587,18 @@ class JoinSimApp(ctk.CTk):
         hint.pack(pady=(5, 0))
 
     def _setup_hotkeys(self) -> None:
-        """Setup global hotkeys."""
-        keyboard.add_hotkey("F6", self._toggle)
-        keyboard.add_hotkey("F7", self._on_quit)
+        """Setup global hotkeys.
+        
+        Note: On Windows, the keyboard library may require admin privileges
+        for global hotkeys to work in all applications.
+        """
+        try:
+            keyboard.add_hotkey("F6", self._toggle)
+            keyboard.add_hotkey("F7", self._on_quit)
+            self._log("Hotkeys registered: F6 (toggle), F7 (quit)")
+        except Exception as e:
+            self._log(f"Warning: Could not register hotkeys: {e}")
+            self._log("Hotkeys may require admin privileges on Windows")
 
     def _check_templates(self) -> None:
         """Check if templates exist, launch wizard if not."""
@@ -828,21 +837,28 @@ class JoinSimApp(ctk.CTk):
             region: Window region.
         """
         def update():
-            if region:
-                width = region[2] - region[0]
-                height = region[3] - region[1]
-                self._detection_panel.update_status("window", True, f"Found ({width}x{height})")
-            else:
-                self._detection_panel.update_status("window", False)
+            try:
+                # Check if window still exists
+                if not self.winfo_exists():
+                    return
+                    
+                if region:
+                    width = region[2] - region[0]
+                    height = region[3] - region[1]
+                    self._detection_panel.update_status("window", True, f"Found ({width}x{height})")
+                else:
+                    self._detection_panel.update_status("window", False)
 
-            join_pos = detections.get("join_button")
-            if join_pos:
-                self._detection_panel.update_status("join_button", True, f"Located ({join_pos[0]}, {join_pos[1]})")
-            else:
-                self._detection_panel.update_status("join_button", False)
+                join_pos = detections.get("join_button")
+                if join_pos:
+                    self._detection_panel.update_status("join_button", True, f"Located ({join_pos[0]}, {join_pos[1]})")
+                else:
+                    self._detection_panel.update_status("join_button", False)
 
-            self._detection_panel.update_status("server_full", detections.get("server_full", False))
-            self._detection_panel.update_status("loading", detections.get("loading", False))
+                self._detection_panel.update_status("server_full", detections.get("server_full", False))
+                self._detection_panel.update_status("loading", detections.get("loading", False))
+            except Exception:
+                pass  # Window may be destroyed during shutdown
 
         self.after(0, update)
 
@@ -853,15 +869,22 @@ class JoinSimApp(ctk.CTk):
             info: StateInfo from state machine.
         """
         def update():
-            self._stats_panel.update_stat("retry_count", str(info.retry_count))
-            self._stats_panel.update_stat("clicks", str(info.total_clicks))
+            try:
+                # Check if window still exists
+                if not self.winfo_exists():
+                    return
+                    
+                self._stats_panel.update_stat("retry_count", str(info.retry_count))
+                self._stats_panel.update_stat("clicks", str(info.total_clicks))
 
-            # Calculate elapsed time
-            if self._start_time:
-                elapsed = time.time() - self._start_time
-                minutes = int(elapsed // 60)
-                seconds = int(elapsed % 60)
-                self._stats_panel.update_stat("time_elapsed", f"{minutes}:{seconds:02d}")
+                # Calculate elapsed time
+                if self._start_time:
+                    elapsed = time.time() - self._start_time
+                    minutes = int(elapsed // 60)
+                    seconds = int(elapsed % 60)
+                    self._stats_panel.update_stat("time_elapsed", f"{minutes}:{seconds:02d}")
+            except Exception:
+                pass  # Window may be destroyed during shutdown
 
         self.after(0, update)
 

@@ -28,6 +28,8 @@ Usage:
         print("Server is full!")
 """
 
+import platform
+import sys
 import threading
 import time
 from pathlib import Path
@@ -35,6 +37,11 @@ from typing import Optional, Tuple, List, Dict, Any
 import logging
 
 import numpy as np
+
+# Platform detection
+IS_WINDOWS = sys.platform == 'win32' or platform.system() == 'Windows'
+IS_MACOS = sys.platform == 'darwin' or platform.system() == 'Darwin'
+IS_LINUX = sys.platform.startswith('linux') or platform.system() == 'Linux'
 
 try:
     import cv2
@@ -47,11 +54,13 @@ except ImportError:
     raise ImportError("MSS is required. Run: pip install mss")
 
 # Optional DXcam for Windows (best performance)
-try:
-    import dxcam
-    HAS_DXCAM = True
-except ImportError:
-    HAS_DXCAM = False
+HAS_DXCAM = False
+if IS_WINDOWS:
+    try:
+        import dxcam
+        HAS_DXCAM = True
+    except ImportError:
+        pass
 
 # Optional pygetwindow for cross-platform window detection
 try:
@@ -61,12 +70,14 @@ except ImportError:
     HAS_PYGETWINDOW = False
 
 # Optional win32gui for Windows window detection (more reliable)
-try:
-    import win32gui
-    import win32con
-    HAS_WIN32GUI = True
-except ImportError:
-    HAS_WIN32GUI = False
+HAS_WIN32GUI = False
+if IS_WINDOWS:
+    try:
+        import win32gui
+        import win32con
+        HAS_WIN32GUI = True
+    except ImportError:
+        pass
 
 
 # Configure logging
