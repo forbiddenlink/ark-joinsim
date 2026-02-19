@@ -55,7 +55,31 @@ pip install -r requirements.txt
 pip install pydirectinput dxcam pywin32
 ```
 
-### 2. First-Time Setup
+### 2. Verify Installation (Windows)
+
+Run the diagnostics to make sure everything works:
+
+```bash
+# Quick check
+test_windows.bat
+
+# Full functionality test
+python test_windows_full.py
+```
+
+This will verify:
+- All dependencies installed
+- Screen capture working
+- Window detection working
+- Input simulation working
+- Vision module working
+
+**If tests fail:**
+1. Run Command Prompt as Administrator
+2. Re-run `pip install -r requirements-windows.txt`
+3. Check antivirus isn't blocking Python
+
+### 3. First-Time Setup
 
 Run the app — it will launch a setup wizard to capture template images:
 
