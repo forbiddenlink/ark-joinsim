@@ -1,0 +1,3 @@
+@echo off
+echo Testing Ark JoinSim dependencies...
+python test_imports.py
