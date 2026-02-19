@@ -139,8 +139,25 @@ class WindowFinder:
         Returns:
             Window object if found, None otherwise.
         """
-        windows = gw.getWindowsWithTitle(self.window_title)
-        return windows[0] if windows else None
+        # getWindowsWithTitle is Windows-only in pygetwindow
+        # On macOS, use getAllTitles and getWindowGeometry
+        if hasattr(gw, 'getWindowsWithTitle'):
+            windows = gw.getWindowsWithTitle(self.window_title)
+            return windows[0] if windows else None
+        
+        # macOS fallback: search through all window titles
+        if hasattr(gw, 'getAllTitles'):
+            try:
+                titles = gw.getAllTitles()
+                for title in titles:
+                    if self.window_title in title:
+                        # On macOS, return the title as a pseudo-window object
+                        # We'll handle geometry lookup separately
+                        return {"title": title, "platform": "macos"}
+            except Exception as e:
+                logger.debug(f"Failed to enumerate windows: {e}")
+        
+        return None
 
     def get_window_region(self, use_cache: bool = True) -> Optional[Tuple[int, int, int, int]]:
         """Get the region (bounding box) of the ARK window.
@@ -172,9 +189,21 @@ class WindowFinder:
                 logger.error(f"Failed to get window rect: {e}")
                 return None
         elif HAS_PYGETWINDOW:
-            # pygetwindow window object
+            # pygetwindow window object or macOS dict
             try:
-                region = (window.left, window.top, window.right, window.bottom)
+                if isinstance(window, dict) and window.get("platform") == "macos":
+                    # macOS: try to get window geometry by title
+                    if hasattr(gw, 'getWindowGeometry'):
+                        geom = gw.getWindowGeometry(window["title"])
+                        if geom:
+                            left, top, width, height = geom
+                            region = (left, top, left + width, top + height)
+                    else:
+                        # Fall back to capturing full screen on macOS
+                        logger.info("macOS window geometry not available, using full screen capture")
+                        return None
+                else:
+                    region = (window.left, window.top, window.right, window.bottom)
             except Exception as e:
                 logger.error(f"Failed to get window rect: {e}")
                 return None

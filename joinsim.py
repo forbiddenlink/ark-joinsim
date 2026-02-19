@@ -236,8 +236,9 @@ class SettingsPopup(ctk.CTkToplevel):
         super().__init__(parent)
 
         self.title("Settings")
-        self.geometry("400x350")
-        self.resizable(False, False)
+        self.geometry("420x380")
+        self.minsize(380, 350)
+        self.resizable(True, True)
         self.transient(parent)
         self.grab_set()
 
@@ -341,30 +342,37 @@ class SettingsPopup(ctk.CTkToplevel):
         ctk.CTkButton(
             main,
             text="Recapture Templates",
+            width=200,
+            height=36,
             fg_color="gray30",
             hover_color="gray40",
             command=self._on_recapture,
         ).pack(pady=(20, 10))
 
-        # Buttons
+        # Buttons - centered layout
         btn_frame = ctk.CTkFrame(main, fg_color="transparent")
         btn_frame.pack(fill="x", pady=(10, 0))
+        
+        btn_inner = ctk.CTkFrame(btn_frame, fg_color="transparent")
+        btn_inner.pack(expand=True)
 
         ctk.CTkButton(
-            btn_frame,
+            btn_inner,
             text="Cancel",
-            width=80,
+            width=100,
+            height=36,
             fg_color="gray30",
             hover_color="gray40",
             command=self.destroy,
-        ).pack(side="left")
+        ).pack(side="left", padx=10)
 
         ctk.CTkButton(
-            btn_frame,
+            btn_inner,
             text="Save",
-            width=80,
+            width=100,
+            height=36,
             command=self._on_save_click,
-        ).pack(side="right")
+        ).pack(side="left", padx=10)
 
     def _on_save_click(self) -> None:
         """Handle save button click."""
@@ -393,10 +401,11 @@ class JoinSimApp(ctk.CTk):
         """Initialize the JoinSim application."""
         super().__init__()
 
-        # Configure window
+        # Configure window - slightly wider to prevent button cutoff
         self.title("Ark JoinSim v4")
-        self.geometry("450x650")
-        self.resizable(False, False)
+        self.geometry("480x680")
+        self.minsize(450, 600)
+        self.resizable(True, True)
 
         # Set appearance
         ctk.set_appearance_mode("dark")
@@ -525,31 +534,35 @@ class JoinSimApp(ctk.CTk):
         self._stats_panel = SessionStatsPanel(stats_section)
         self._stats_panel.pack(fill="x", pady=(5, 0), padx=10)
 
-        # Buttons
+        # Buttons - use expand to center and prevent cutoff
         btn_frame = ctk.CTkFrame(self._main_frame, fg_color="transparent")
-        btn_frame.pack(fill="x", pady=15)
+        btn_frame.pack(fill="x", pady=15, padx=10)
+
+        # Inner container for centering buttons
+        btn_inner = ctk.CTkFrame(btn_frame, fg_color="transparent")
+        btn_inner.pack(expand=True)
 
         self._start_btn = ctk.CTkButton(
-            btn_frame,
+            btn_inner,
             text="START",
             font=ctk.CTkFont(size=14, weight="bold"),
-            width=140,
+            width=150,
             height=45,
             command=self._toggle,
         )
-        self._start_btn.pack(side="left", padx=(30, 10))
+        self._start_btn.pack(side="left", padx=10)
 
         self._settings_btn = ctk.CTkButton(
-            btn_frame,
+            btn_inner,
             text="Settings",
             font=ctk.CTkFont(size=14),
-            width=140,
+            width=150,
             height=45,
             fg_color="gray30",
             hover_color="gray40",
             command=self._open_settings,
         )
-        self._settings_btn.pack(side="right", padx=(10, 30))
+        self._settings_btn.pack(side="left", padx=10)
 
         # Activity Log section
         log_section = ctk.CTkFrame(self._main_frame, fg_color="transparent")
