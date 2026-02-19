@@ -1,4 +1,4 @@
-# Ark JoinSim v2 — Auto-Joiner for Ark: Survival Ascended
+# Ark JoinSim v3 — Auto-Joiner for Ark: Survival Ascended
 
 A smart auto-clicker / auto-joiner for getting into full Ark Ascended servers.
 
@@ -22,6 +22,9 @@ A smart auto-clicker / auto-joiner for getting into full Ark Ascended servers.
 
 ### Quality of Life
 - **Click counter** — shows how many clicks this session
+- **Click limit** — optionally stop after X clicks (0 = unlimited)
+- **Left/Right mouse button** — toggle between mouse buttons
+- **Sound notifications** — beeps on start/stop/limit reached
 - **Auto-saves settings** — remembers position and preferences
 - **Works on any resolution** — laptop or desktop
 
@@ -72,6 +75,9 @@ Settings are saved to `joinsim_config.json`:
 | `random_pause_chance` | 10% | Chance of a longer random pause |
 | `random_pause_min` | 3.0s | Minimum random pause |
 | `random_pause_max` | 8.0s | Maximum random pause |
+| `mouse_button` | "left" | Which mouse button to click |
+| `click_limit` | 0 | Stop after X clicks (0 = unlimited) |
+| `sound_enabled` | true | Play sounds on events |
 
 ## Why This Works Better Than Simple Auto-Clickers
 
