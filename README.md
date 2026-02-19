@@ -33,7 +33,7 @@ A smart auto-clicker / auto-joiner for getting into full Ark Ascended servers.
 ### Option 1: Run from Python
 ```bash
 # Install dependencies (one time)
-pip install pyautogui keyboard pynput pillow
+pip install pyautogui keyboard pynput
 
 # Run
 python joinsim.py
@@ -119,4 +119,4 @@ JoinSim saves your screen resolution. If you switch between laptop and desktop:
 
 - Windows 10/11
 - Python 3.8+ (or use the standalone .exe)
-- pyautogui, keyboard, pynput, Pillow
+- pyautogui, keyboard, pynput

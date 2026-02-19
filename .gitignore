@@ -1,0 +1,28 @@
+# Build artifacts
+build/
+dist/
+*.spec
+*.exe
+
+# Config (user-specific)
+joinsim_config.json
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude Code
+.claude/

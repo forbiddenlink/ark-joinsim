@@ -1,45 +1,49 @@
 """Quick test to verify all dependencies are installed correctly."""
 
 print("Testing imports...")
+print()
+
+results = []
 
 try:
     import pyautogui
-    print("✅ pyautogui OK")
+    print("  pyautogui OK")
+    results.append(True)
 except ImportError as e:
-    print(f"❌ pyautogui FAILED: {e}")
+    print(f"  pyautogui FAILED: {e}")
+    results.append(False)
 
 try:
     import keyboard
-    print("✅ keyboard OK")
+    print("  keyboard OK")
+    results.append(True)
 except ImportError as e:
-    print(f"❌ keyboard FAILED: {e}")
+    print(f"  keyboard FAILED: {e}")
+    results.append(False)
 
 try:
     from pynput import mouse
-    print("✅ pynput OK")
+    print("  pynput OK")
+    results.append(True)
 except ImportError as e:
-    print(f"❌ pynput FAILED: {e}")
-
-try:
-    from PIL import Image
-    print("✅ Pillow OK")
-except ImportError as e:
-    print(f"❌ Pillow FAILED: {e}")
+    print(f"  pynput FAILED: {e}")
+    results.append(False)
 
 try:
     import tkinter as tk
     root = tk.Tk()
     root.withdraw()
     root.destroy()
-    print("✅ tkinter OK")
+    print("  tkinter OK")
+    results.append(True)
 except Exception as e:
-    print(f"❌ tkinter FAILED: {e}")
+    print(f"  tkinter FAILED: {e}")
+    results.append(False)
 
-print("\n✅ All tests passed!" if all([
-    'pyautogui' in dir(),
-    'keyboard' in dir(),
-    'mouse' in dir(),
-    'Image' in dir(),
-]) else "\n⚠️ Some imports failed - run: pip install -r requirements.txt")
+print()
+if all(results):
+    print("All tests passed!")
+else:
+    print("Some imports failed - run: pip install -r requirements.txt")
 
 input("\nPress Enter to exit...")

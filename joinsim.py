@@ -17,7 +17,13 @@ import time
 import tkinter as tk
 from tkinter import ttk, messagebox
 from pathlib import Path
-import winsound  # Windows sound
+
+# Windows-only sound (gracefully unavailable on macOS/Linux)
+try:
+    import winsound
+    HAS_WINSOUND = True
+except ImportError:
+    HAS_WINSOUND = False
 
 try:
     import pyautogui
@@ -28,6 +34,8 @@ except ImportError:
 
 def play_sound(sound_type="click"):
     """Play a sound (Windows only)."""
+    if not HAS_WINSOUND:
+        return
     try:
         if sound_type == "start":
             winsound.Beep(800, 200)
@@ -37,8 +45,8 @@ def play_sound(sound_type="click"):
             winsound.Beep(1000, 100)
             winsound.Beep(1200, 100)
             winsound.Beep(1000, 100)
-    except:
-        pass  # Ignore if winsound not available (non-Windows)
+    except Exception:
+        pass
 
 # Disable PyAutoGUI fail-safe (move mouse to corner to stop)
 pyautogui.FAILSAFE = True
@@ -77,13 +85,6 @@ class JoinSim:
         self.root.title("Ark JoinSim v3")
         self.root.geometry("420x500")
         self.root.resizable(False, False)
-        
-        # Try to set dark theme
-        try:
-            self.root.tk.call("source", "azure.tcl")
-            self.root.tk.call("set_theme", "dark")
-        except:
-            pass
         
         self.setup_ui()
         self.setup_hotkeys()
@@ -342,10 +343,11 @@ class JoinSim:
                 
                 click_count += 1
                 self.config["click_count"] = click_count
-                
-                # Update status with click count
+
+                # Update status and counter with click count
                 limit_str = f"/{click_limit}" if click_limit > 0 else ""
                 self.root.after(0, lambda c=click_count, l=limit_str: self.status_var.set(f"🟢 Running... ({c}{l} clicks)"))
+                self.root.after(0, lambda c=click_count: self.counter_label.config(text=f"Total clicks this session: {c}"))
                 
             except Exception as e:
                 print(f"Click error: {e}")
