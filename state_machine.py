@@ -121,11 +121,16 @@ class JoinStateMachine:
         if new_state == JoinState.RETRY:
             delay = random.uniform(self.config.retry_delay_min, self.config.retry_delay_max)
             self._retry_target_time = time.time() + delay
+            self._pending_click_position = None  # Clear stale click position
         elif new_state == JoinState.SEARCHING:
             self._window_lost_time = None
+            self._pending_click_position = None  # Clear stale click position
         elif new_state == JoinState.IDLE:
             self._retry_target_time = None
             self._window_lost_time = None
+            self._pending_click_position = None  # Clear stale click position
+        elif new_state in (JoinState.SUCCESS, JoinState.FAILED_FULL, JoinState.FAILED_TIMEOUT):
+            self._pending_click_position = None  # Clear stale click position
 
         # Notify callbacks
         for callback in self._callbacks:
@@ -216,7 +221,7 @@ class JoinStateMachine:
         self._pending_click_position = None
         return pos
 
-    def update(self, detections: Dict[str, Any]) -> Optional[str]:
+    def update(self, detections: Optional[Dict[str, Any]] = None) -> Optional[str]:
         """
         Update the state machine based on detection results.
 
@@ -238,6 +243,10 @@ class JoinStateMachine:
                 - 'dismiss_popup' - Caller should dismiss server full popup
                 - None - No action needed
         """
+        # Handle None detections gracefully
+        if detections is None:
+            detections = {}
+
         window_found = detections.get('window_found', False)
         join_button = detections.get('join_button')
         server_full = detections.get('server_full', False)
@@ -270,7 +279,10 @@ class JoinStateMachine:
             if self._pending_click_position:
                 action = 'click'
                 self._total_clicks += 1
-            self._transition_to(JoinState.WAITING)
+                self._transition_to(JoinState.WAITING)
+            else:
+                # No click position available, go back to searching
+                self._transition_to(JoinState.SEARCHING, error="No click position available")
 
         elif self._state == JoinState.WAITING:
             time_in_state = time.time() - self._state_enter_time
@@ -317,7 +329,10 @@ class JoinStateMachine:
 
         elif self._state == JoinState.RETRY:
             # Wait for retry delay, then go back to searching
-            if self._retry_target_time and time.time() >= self._retry_target_time:
+            if self._retry_target_time is None:
+                # Defensive: if no target time set, retry immediately
+                self._transition_to(JoinState.SEARCHING)
+            elif time.time() >= self._retry_target_time:
                 self._transition_to(JoinState.SEARCHING)
 
         return action

@@ -180,6 +180,14 @@ class WindowFinder:
                 return None
 
         if region:
+            # Validate region has positive dimensions
+            left, top, right, bottom = region
+            width = right - left
+            height = bottom - top
+            if width <= 0 or height <= 0:
+                logger.warning(f"Invalid window dimensions: {width}x{height} (window may be minimized)")
+                return None
+
             self._cached_region = region
             self._cache_time = time.time()
             logger.debug(f"ARK window region: {region}")
@@ -199,7 +207,14 @@ class WindowFinder:
         if HAS_WIN32GUI and isinstance(window, int):
             return win32gui.IsWindowVisible(window)
         elif HAS_PYGETWINDOW:
-            return window.visible
+            try:
+                return window.visible
+            except AttributeError:
+                # Some platforms may not have visible attribute
+                try:
+                    return window.isActive
+                except AttributeError:
+                    return True  # Assume visible if we can't check
         return False
 
     def bring_to_front(self) -> bool:
@@ -338,7 +353,10 @@ class ScreenCapture:
                 "height": region[3] - region[1],
             }
         else:
-            # Primary monitor
+            # Primary monitor (index 1 is primary, index 0 is "all monitors combined")
+            if len(self._mss_context.monitors) < 2:
+                logger.error("No monitors detected by MSS")
+                return None
             monitor = self._mss_context.monitors[1]
 
         screenshot = self._mss_context.grab(monitor)
@@ -375,6 +393,8 @@ class ScreenCapture:
         self._running = False
         if self._capture_thread:
             self._capture_thread.join(timeout=1.0)
+            if self._capture_thread.is_alive():
+                logger.warning("Capture thread did not stop cleanly within timeout")
             self._capture_thread = None
         logger.info("Stopped threaded capture")
 

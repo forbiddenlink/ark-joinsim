@@ -699,6 +699,12 @@ class JoinSimApp(ctk.CTk):
 
         self._running = False
 
+        # Wait for detection thread to finish
+        if self._detection_thread and self._detection_thread.is_alive():
+            self._detection_thread.join(timeout=2.0)
+            if self._detection_thread.is_alive():
+                self._log("Warning: Detection thread did not stop cleanly")
+
         # Stop state machine
         if self._state_machine:
             self._state_machine.stop()
@@ -927,7 +933,11 @@ class JoinSimApp(ctk.CTk):
         """Handle quit."""
         self._stop("Application closing")
 
-        # Cleanup
+        # Wait a bit more for any cleanup
+        if self._detection_thread and self._detection_thread.is_alive():
+            self._detection_thread.join(timeout=1.0)
+
+        # Cleanup screen capture after thread is done
         if self._screen_capture:
             self._screen_capture.cleanup()
 
