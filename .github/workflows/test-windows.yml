@@ -26,83 +26,43 @@ jobs:
           
       - name: Test core imports
         run: |
-          python -c "import customtkinter; print('✓ customtkinter')"
-          python -c "import cv2; print('✓ opencv-python')"
-          python -c "import numpy; print('✓ numpy')"
-          python -c "import mss; print('✓ mss')"
-          python -c "import pyautogui; print('✓ pyautogui')"
-          python -c "import keyboard; print('✓ keyboard')"
-          python -c "import pygetwindow; print('✓ pygetwindow')"
+          python -c "import customtkinter; print('[OK] customtkinter')"
+          python -c "import cv2; print('[OK] opencv-python')"
+          python -c "import numpy; print('[OK] numpy')"
+          python -c "import mss; print('[OK] mss')"
+          python -c "import pyautogui; print('[OK] pyautogui')"
+          python -c "import keyboard; print('[OK] keyboard')"
+          python -c "import pygetwindow; print('[OK] pygetwindow')"
           
       - name: Test Windows-specific imports
         run: |
-          python -c "import pydirectinput; print('✓ pydirectinput')"
-          python -c "import win32gui; print('✓ pywin32')"
+          python -c "import pydirectinput; print('[OK] pydirectinput')"
+          python -c "import win32gui; print('[OK] pywin32')"
         continue-on-error: true
         
       - name: Test screen capture
         run: |
-          python -c "
-          import mss
-          with mss.mss() as sct:
-              img = sct.grab(sct.monitors[0])
-              print(f'✓ MSS capture: {img.width}x{img.height}')
-          "
+          python -c "import mss; sct = mss.mss(); img = sct.grab(sct.monitors[0]); print(f'[OK] MSS capture: {img.width}x{img.height}')"
           
       - name: Test window detection
         run: |
-          python -c "
-          import pygetwindow as gw
-          titles = gw.getAllTitles()
-          print(f'✓ Found {len(titles)} windows')
-          # Test getWindowsWithTitle (Windows-specific)
-          if hasattr(gw, 'getWindowsWithTitle'):
-              print('✓ getWindowsWithTitle available')
-          "
+          python -c "import pygetwindow as gw; titles = gw.getAllTitles(); print(f'[OK] Found {len(titles)} windows'); print('[OK] getWindowsWithTitle available' if hasattr(gw, 'getWindowsWithTitle') else '[INFO] getWindowsWithTitle not available')"
           
       - name: Test vision module
         run: |
-          python -c "
-          from vision import ScreenCapture, TemplateDetector, WindowFinder
-          print('✓ Vision module imports')
-          
-          cap = ScreenCapture(use_dxcam=False)
-          frame = cap.capture()
-          if frame is not None:
-              print(f'✓ Screen captured: {frame.shape}')
-          else:
-              print('✗ Screen capture failed')
-              exit(1)
-          "
+          python -c "from vision import ScreenCapture, TemplateDetector, WindowFinder; print('[OK] Vision module imports'); cap = ScreenCapture(use_dxcam=False); frame = cap.capture(); print(f'[OK] Screen captured: {frame.shape}') if frame is not None else exit(1)"
           
       - name: Test input handler
         run: |
-          python -c "
-          from input_handler import HumanInput, is_available, get_backend
-          print(f'✓ Input backend: {get_backend()}')
-          print(f'✓ Available: {is_available()}')
-          "
+          python -c "from input_handler import HumanInput, is_available, get_backend; print(f'[OK] Input backend: {get_backend()}'); print(f'[OK] Available: {is_available()}')"
           
       - name: Test state machine
         run: |
-          python -c "
-          from state_machine import JoinStateMachine, JoinState
-          sm = JoinStateMachine()
-          sm.start()
-          assert sm.get_state() == JoinState.SEARCHING
-          sm.stop()
-          assert sm.get_state() == JoinState.IDLE
-          print('✓ State machine transitions work')
-          "
+          python -c "from state_machine import JoinStateMachine, JoinState; sm = JoinStateMachine(); sm.start(); assert sm.get_state() == JoinState.SEARCHING; sm.stop(); assert sm.get_state() == JoinState.IDLE; print('[OK] State machine transitions work')"
           
       - name: Test notifications
         run: |
-          python -c "
-          from notifications import Notifier
-          n = Notifier()
-          n.set_sound_enabled(False)
-          print('✓ Notifications module works')
-          "
+          python -c "from notifications import Notifier; n = Notifier(); n.set_sound_enabled(False); print('[OK] Notifications module works')"
           
       - name: Run component tests
         run: python test_components.py
