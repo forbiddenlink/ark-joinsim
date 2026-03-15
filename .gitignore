@@ -7,23 +7,31 @@ dist/
 
 # Config (user-specific)
 joinsim_config.json
-
 # Python
 __pycache__/
 *.py[cod]
 *.pyo
 .Python
 *.egg-info/
-
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
-
 # OS
 .DS_Store
 Thumbs.db
-
 # Claude Code
 .claude/
+# Environment
+.env
+.env.local
+.env.*.local
+.env*.local
+# Dependencies
+node_modules/
+# Build output
+.next/
+out/
+# Vercel
+.vercel
