@@ -13,7 +13,7 @@ Pillow>=10.0.0
 # Input Simulation
 pyautogui>=0.9.54
 keyboard>=0.13.5
-pynput>=1.7.6
+pynput>=1.8.2
 
 # Window Detection
 pygetwindow>=0.0.9
