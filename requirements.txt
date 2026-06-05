@@ -1,5 +1,5 @@
 # UI
-customtkinter>=5.0.0
+customtkinter>=5.2.2
 
 # Vision / Screen Capture
 opencv-python>=4.8.0
