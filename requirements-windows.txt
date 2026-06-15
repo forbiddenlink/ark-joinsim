@@ -19,7 +19,7 @@ pynput>=1.8.2
 pygetwindow>=0.0.9
 
 # Notifications
-requests>=2.28.0
+requests>=2.34.2
 
 # Windows Performance (recommended)
 pydirectinput>=1.0.4
