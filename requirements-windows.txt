@@ -2,7 +2,7 @@
 # Install with: pip install -r requirements-windows.txt
 
 # UI Framework
-customtkinter>=5.2.2
+customtkinter>=6.0.0
 
 # Vision / Screen Capture
 opencv-python>=4.13.0.92
