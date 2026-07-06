@@ -8,7 +8,7 @@ customtkinter>=6.0.0
 opencv-python>=4.13.0.92
 numpy>=2.5.0
 mss>=10.2.0
-Pillow>=12.2.0
+Pillow>=12.3.0
 
 # Input Simulation
 pyautogui>=0.9.54
