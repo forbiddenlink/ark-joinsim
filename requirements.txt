@@ -3,7 +3,7 @@ customtkinter>=6.0.0
 
 # Vision / Screen Capture
 opencv-python>=5.0.0.93
-numpy>=2.5.1
+numpy>=2.5.2
 mss>=10.2.0
 Pillow>=12.3.0
 
