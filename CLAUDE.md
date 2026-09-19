@@ -41,7 +41,6 @@ movement. Cross-platform code paths exist but Windows is the primary target.
 - `setup_wizard.py` - captures template images (Join button, "Server Full" popup, server
   list background, loading screen) once per resolution
 - `templates/` - captured template images (user-generated, not committed content)
-- `docs/plans/` - design docs (e.g. `2026-02-19-joinsim-v4-design.md`)
 - `test_components.py`, `test_imports.py`, `test_windows_full.py` - test/diagnostic scripts
   run directly with `python`, not a pytest suite
 
