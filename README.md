@@ -1,4 +1,4 @@
-# Ark JoinSim v4 — Smart Auto-Joiner for Ark: Survival Ascended
+# Ark JoinSim v4: Smart Auto-Joiner for Ark: Survival Ascended
 
 A smart auto-joiner that **detects join failures and automatically retries**. No more getting stuck on "Server Full" popups.
 
@@ -6,13 +6,13 @@ A smart auto-joiner that **detects join failures and automatically retries**. No
 
 ## What's New in v4
 
-- **Smart Detection** — Detects "Server Full" popup, loading screens, and when you get kicked back
-- **Auto-Retry** — Automatically dismisses popups and retries joining
-- **Auto-Find Window** — No more manual "Set Position" — finds ARK automatically
-- **Works at Any Resolution** — Multi-scale template matching adapts to your screen
-- **Modern Dark UI** — Clean interface with live detection status and activity log
-- **Discord Notifications** — Get pinged when you successfully join
-- **Better Anti-Detection** — Bezier curve mouse movement, Gaussian timing distribution
+- **Smart Detection**: Detects "Server Full" popup, loading screens, and when you get kicked back
+- **Auto-Retry**: Automatically dismisses popups and retries joining
+- **Auto-Find Window**: No more manual "Set Position", finds ARK automatically
+- **Works at Any Resolution**: Multi-scale template matching adapts to your screen
+- **Modern Dark UI**: Clean interface with live detection status and activity log
+- **Discord Notifications**: Get pinged when you successfully join
+- **Better Anti-Detection**: Bezier curve mouse movement, Gaussian timing distribution
 
 ## Features
 
@@ -24,23 +24,23 @@ A smart auto-joiner that **detects join failures and automatically retries**. No
 - **15-second timeout** for stuck joins
 
 ### Modern UI
-- **Live detection status** — See what the bot can see
-- **Activity log** — Scrolling history of all actions
-- **Session stats** — Retry count, time elapsed, clicks
-- **Settings panel** — Configure timeout, sounds, Discord webhook
+- **Live detection status**: See what the bot can see
+- **Activity log**: Scrolling history of all actions
+- **Session stats**: Retry count, time elapsed, clicks
+- **Settings panel**: Configure timeout, sounds, Discord webhook
 
 ### Anti-Detection (Improved)
-- **Bezier curve mouse movement** — Natural curved paths, not linear
-- **Gaussian timing distribution** — More human-like than uniform random
-- **Micro-jitter during click hold** — Humans don't hold perfectly still
-- **Position jitter** — Clicks slightly different spot each time (±5px)
-- **Realistic click duration** — 50-150ms hold time
+- **Bezier curve mouse movement**: Natural curved paths, not linear
+- **Gaussian timing distribution**: More human-like than uniform random
+- **Micro-jitter during click hold**: Humans don't hold perfectly still
+- **Position jitter**: Clicks slightly different spot each time (±5px)
+- **Realistic click duration**: 50-150ms hold time
 
 ### Quality of Life
-- **Discord notifications** — Get pinged on success/failure
-- **Sound notifications** — Different sounds for different events
-- **Auto-saves settings** — Remembers your preferences
-- **Hotkey controls** — F6 to toggle, F7 to quit
+- **Discord notifications**: Get pinged on success/failure
+- **Sound notifications**: Different sounds for different events
+- **Auto-saves settings**: Remembers your preferences
+- **Hotkey controls**: F6 to toggle, F7 to quit
 
 ## Quick Start
 
@@ -52,7 +52,7 @@ pip install -r requirements.txt
 
 **On Windows (recommended):** Also install optional packages for better performance:
 ```bash
-pip install pydirectinput dxcam pywin32
+pip install pydirectinput bettercam pywin32
 ```
 
 ### 2. Verify Installation (Windows)
@@ -61,7 +61,7 @@ Run the diagnostics to make sure everything works:
 
 ```bash
 # Quick check
-test_windows.bat
+test.bat
 
 # Full functionality test
 python test_windows_full.py
@@ -81,7 +81,7 @@ This will verify:
 
 ### 3. First-Time Setup
 
-Run the app — it will launch a setup wizard to capture template images:
+Run the app; it will launch a setup wizard to capture template images:
 
 ```bash
 python joinsim.py
@@ -100,7 +100,7 @@ This only needs to be done once per resolution.
 1. **Launch Ark Ascended** and navigate to the server list
 2. **Find your full server**
 3. **Run JoinSim** and click **Start** (or press F6)
-4. **Wait** — JoinSim will detect failures and keep retrying
+4. **Wait**: JoinSim will detect failures and keep retrying
 5. **Get notified** when you successfully join!
 
 ## Configuration
@@ -112,7 +112,7 @@ Settings are saved to `joinsim_config.json`:
 | `timeout_seconds` | 15 | How long to wait before assuming join failed |
 | `detection_threshold` | 0.8 | Template matching confidence (0.0-1.0) |
 | `sound_enabled` | true | Play sounds on events |
-| `discord_webhook` | null | Discord webhook URL for notifications |
+| `discord_webhook_url` | "" | Discord webhook URL for notifications |
 
 ## File Structure
 
@@ -139,19 +139,19 @@ IDLE → SEARCHING → CLICKING → WAITING → SUCCESS!
                    RETRY ← FAILED (server full / timeout)
 ```
 
-1. **SEARCHING** — Looking for ARK window and Join button
-2. **CLICKING** — Found target, performing human-like click
-3. **WAITING** — Clicked, monitoring for result (max 15 seconds)
-4. **FAILED** — Detected popup or timeout, dismisses and retries
-5. **SUCCESS** — Detected loading/spawn screen, stops bot
+1. **SEARCHING**: Looking for ARK window and Join button
+2. **CLICKING**: Found target, performing human-like click
+3. **WAITING**: Clicked, monitoring for result (max 15 seconds)
+4. **FAILED**: Detected popup or timeout, dismisses and retries
+5. **SUCCESS**: Detected loading/spawn screen, stops bot
 
 ### Detection Methods
 
 Uses OpenCV template matching with multiple fallback strategies:
-1. **Exact match** — Fastest, works when resolution matches
-2. **Multi-scale match** — Handles different resolutions
-3. **HSV color match** — Ignores Discord/Steam overlays
-4. **Feature matching** — Most robust for partial visibility
+1. **Exact match**: Fastest, works when resolution matches
+2. **Multi-scale match**: Handles different resolutions
+3. **HSV color match**: Ignores Discord/Steam overlays
+4. **Feature matching**: Most robust for partial visibility
 
 ## Troubleshooting
 
@@ -186,7 +186,7 @@ Uses OpenCV template matching with multiple fallback strategies:
 
 ### Optional (Windows)
 - pydirectinput (better DirectX input)
-- dxcam (faster screen capture, 240+ FPS)
+- bettercam (faster screen capture, better Windows 11 support than dxcam)
 - pywin32 (better window detection)
 
 ## Disclaimer
