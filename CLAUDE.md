@@ -48,7 +48,7 @@ movement. Cross-platform code paths exist but Windows is the primary target.
 
 Runtime settings persist to `joinsim_config.json` (not committed), not environment
 variables: `timeout_seconds` (default 15), `detection_threshold` (default 0.8),
-`sound_enabled`, `discord_webhook`.
+`sound_enabled`, `discord_webhook_url`.
 
 ## Conventions
 

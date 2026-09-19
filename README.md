@@ -112,7 +112,7 @@ Settings are saved to `joinsim_config.json`:
 | `timeout_seconds` | 15 | How long to wait before assuming join failed |
 | `detection_threshold` | 0.8 | Template matching confidence (0.0-1.0) |
 | `sound_enabled` | true | Play sounds on events |
-| `discord_webhook` | null | Discord webhook URL for notifications |
+| `discord_webhook_url` | "" | Discord webhook URL for notifications |
 
 ## File Structure
 
