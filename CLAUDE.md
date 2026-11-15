@@ -7,7 +7,7 @@ movement. Cross-platform code paths exist but Windows is the primary target.
 
 ## Stack
 
-- Python 3.8+, no package manager lockfile (plain `requirements.txt`)
+- Python 3.12+ (`numpy>=2.5.2` requires it; CI uses 3.12), no package manager lockfile (plain `requirements.txt`)
 - `customtkinter` - UI, `opencv-python` + `numpy` + `mss`/`Pillow` - vision/screen capture,
   `pyautogui` + `keyboard` + `pynput` - input simulation, `pygetwindow` - window detection,
   `requests` - Discord webhook notifications

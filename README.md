@@ -126,6 +126,9 @@ ark-joinsim/
 ├── state_machine.py    # Join state tracking
 ├── notifications.py    # Discord + sounds
 ├── setup_wizard.py     # First-time template capture
+├── test_*.py, test*.bat # Diagnostics and tests
+├── run.bat, install.bat, build_exe.bat, joinsim.spec  # Windows helpers and exe build
+├── requirements-windows.txt  # Windows extras (bettercam, pydirectinput, pywin32)
 ├── templates/          # Your captured template images
 ├── requirements.txt
 └── joinsim_config.json # Your settings
@@ -176,7 +179,7 @@ Uses OpenCV template matching with multiple fallback strategies:
 
 ## Requirements
 
-- Python 3.8+
+- Python 3.12 or newer (`numpy>=2.5.2` requires it; CI runs 3.12)
 - Windows 10/11 (recommended) or Mac/Linux
 - ~100MB disk space for dependencies
 
