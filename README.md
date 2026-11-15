@@ -4,6 +4,8 @@ A smart auto-joiner that **detects join failures and automatically retries**. No
 
 **Built for:** Windows (with Mac/Linux support)
 
+> **Read first:** Automating input in a game can break that game's terms of service and can get your account banned. This tool is meant for unofficial and private servers. Check the rules of any server you use it on. You use it at your own risk.
+
 ## What's New in v4
 
 - **Smart Detection**: Detects "Server Full" popup, loading screens, and when you get kicked back
@@ -12,7 +14,7 @@ A smart auto-joiner that **detects join failures and automatically retries**. No
 - **Works at Any Resolution**: Multi-scale template matching adapts to your screen
 - **Modern Dark UI**: Clean interface with live detection status and activity log
 - **Discord Notifications**: Get pinged when you successfully join
-- **Better Anti-Detection**: Bezier curve mouse movement, Gaussian timing distribution
+- **Human-like Input**: Bezier curve mouse movement, Gaussian timing distribution
 
 ## Features
 
@@ -29,7 +31,7 @@ A smart auto-joiner that **detects join failures and automatically retries**. No
 - **Session stats**: Retry count, time elapsed, clicks
 - **Settings panel**: Configure timeout, sounds, Discord webhook
 
-### Anti-Detection (Improved)
+### Human-like Input
 - **Bezier curve mouse movement**: Natural curved paths, not linear
 - **Gaussian timing distribution**: More human-like than uniform random
 - **Micro-jitter during click hold**: Humans don't hold perfectly still
@@ -191,4 +193,4 @@ Uses OpenCV template matching with multiple fallback strategies:
 
 ## Disclaimer
 
-This tool is designed for quality-of-life on unofficial/private servers. Use at your own risk on official servers. The authors are not responsible for any bans or penalties.
+This tool is designed for quality-of-life on unofficial/private servers. Automating input may violate the terms of service of official servers. The authors are not responsible for any bans or penalties.
