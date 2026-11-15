@@ -1,7 +1,7 @@
 """
 Human-like input simulation module for Ark JoinSim.
 
-Provides realistic mouse movement and clicking behavior to avoid detection.
+Provides realistic mouse movement and clicking behavior.
 Uses Bezier curves for movement, Gaussian timing distributions, and micro-jitter.
 
 Features:
