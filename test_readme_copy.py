@@ -10,7 +10,7 @@ README = (Path(__file__).parent / "README.md").read_text(encoding="utf-8")
 
 
 def test_tos_caution_comes_before_feature_list():
-    caution = re.search(r"terms of service|ToS", README, re.IGNORECASE)
+    caution = re.search(r"terms of service", README, re.IGNORECASE)
     first_feature = README.find("## What's New")
     assert caution is not None, "README needs a terms-of-service caution"
     assert caution.start() < first_feature, "caution must appear before the feature list"
